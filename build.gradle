@@ -6,8 +6,10 @@ group = 'ru.netology'
 version = '1.0-SNAPSHOT'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    // Устанавливаем использование JDK 11 для компиляции через toolchain
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
 }
 
 repositories {
@@ -25,7 +27,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
 
-    // Используем WebDriverManager версии 5.3.2, но ты можешь обновить до 5.7.0, если будут ошибки
+    // Используем WebDriverManager версии 5.3.2
     testImplementation 'io.github.bonigarcia:webdrivermanager:5.3.2'
 }
 
@@ -36,6 +38,6 @@ tasks.withType(JavaCompile).configureEach {
 
 tasks.test {
     useJUnitPlatform()
-    // systemProperty "wdm.targetPath", "${project.buildDir}/drivers" // опционально
 }
+
 

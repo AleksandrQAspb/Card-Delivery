@@ -13,6 +13,8 @@ import ru.netology.utils.DataGenerator;
 import java.time.Duration;
 
 import static com.codeborne.selenide.Selenide.*;
+import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Selectors.byText;
 
 public class CardDeliveryTest {
 
@@ -39,7 +41,7 @@ public class CardDeliveryTest {
         open("/");
 
         // Генерируем данные для первичной заявки
-        UserData user = DataGenerator.generateUser(3);
+        UserData user = DataGenerator.generateUser (3);
 
         $("[data-test-id=city] input").setValue(user.getCity());
         $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
@@ -47,12 +49,15 @@ public class CardDeliveryTest {
         $("[data-test-id=name] input").setValue(user.getName());
         $("[data-test-id=phone] input").setValue(user.getPhone());
         $("[data-test-id=agreement]").click();
+
         // Клик по кнопке "Запланировать"
-        $$("span.button__text").findBy(Condition.text("Запланировать")).parent().click();
+        $(byText("Запланировать")).click();
 
         // Проверяем уведомление об успешном бронировании
         $(".notification__content")
-                .shouldHave(Condition.text("Встреча успешно запланирована на " + user.getDate()), Duration.ofSeconds(15));
+                .shouldBe(visible, Duration.ofSeconds(15))
+                .shouldHave(text("Встреча успешно запланирована на 13.08.2025"));
+
 
         // Генерируем новую дату для перепланирования
         String newDate = DataGenerator.generateDate(5);
@@ -60,21 +65,24 @@ public class CardDeliveryTest {
         // Перепланируем встречу: очищаем и меняем дату, отправляем форму заново
         $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
         $("[data-test-id=date] input").setValue(newDate);
-        $$("span.button__text").findBy(Condition.text("Запланировать")).parent().click();
+        $(byText("Запланировать")).click();
 
         // Проверяем появление окна с предложением перепланировать
         $(".notification__content")
-                .shouldHave(Condition.text("Встреча успешно запланирована на " + newDate), Duration.ofSeconds(15));
+                .shouldBe(visible, Duration.ofSeconds(15))
+                .shouldHave(text("Встреча успешно запланирована на " + newDate));
+
 
         // Клик по кнопке "Перепланировать"
-        $$("span.button__text")
-                .findBy(Condition.text("Перепланировать"))
-                .parent()
-                .shouldBe(Condition.visible, Duration.ofSeconds(5))
+        $(byText("Перепланировать"))
+                .shouldBe(visible, Duration.ofSeconds(5))
                 .click();
 
         // Проверяем уведомление о успешном перепланировании
         $(".notification__content")
-                .shouldHave(Condition.text("Встреча успешно запланирована на " + newDate), Duration.ofSeconds(15));
+                .shouldBe(visible, Duration.ofSeconds(15))
+                .shouldHave(text("Встреча успешно запланирована на " + newDate));
     }
 }
+
+
