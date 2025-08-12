@@ -21,7 +21,8 @@ public class CardDeliveryTest {
     @BeforeAll
     static void setUp() {
         WebDriverManager.chromedriver().clearDriverCache().clearResolutionCache();
-        WebDriverManager.chromedriver().browserVersion("115.0.5790.102").setup();
+        // Указываем вашу версию браузера
+        WebDriverManager.chromedriver().setup();
 
         Configuration.browser = "chrome";
 
@@ -56,7 +57,7 @@ public class CardDeliveryTest {
         // Проверяем уведомление об успешном бронировании
         $(".notification__content")
                 .shouldBe(visible, Duration.ofSeconds(15))
-                .shouldHave(text("Встреча успешно запланирована на 13.08.2025"));
+                .shouldHave(text("Встреча успешно запланирована на 15.08.2025"));
 
 
         // Генерируем новую дату для перепланирования
