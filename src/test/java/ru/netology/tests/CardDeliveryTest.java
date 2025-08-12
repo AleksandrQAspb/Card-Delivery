@@ -35,8 +35,8 @@ public class CardDeliveryTest {
         Configuration.browserCapabilities = options;
         Configuration.baseUrl = "http://localhost:9999";
         Configuration.browserSize = "1920x1080";
-        // Если нужно запускать в headless-режиме, установите true, иначе оставьте false
-        Configuration.headless = false;
+        // Включаем headless-режим для запуска тестов без GUI
+        Configuration.headless = true;
     }
 
     @Test
