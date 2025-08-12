@@ -13,15 +13,14 @@ import ru.netology.utils.DataGenerator;
 import java.time.Duration;
 
 import static com.codeborne.selenide.Selenide.*;
-import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selectors.byText;
 
 public class CardDeliveryTest {
 
     @BeforeAll
     static void setUp() {
+        // Очищаем кэш драйверов для предотвращения конфликтов
         WebDriverManager.chromedriver().clearDriverCache().clearResolutionCache();
-        // Указываем вашу версию браузера
         WebDriverManager.chromedriver().setup();
 
         Configuration.browser = "chrome";
@@ -30,10 +29,13 @@ public class CardDeliveryTest {
         options.addArguments("--remote-allow-origins=*");
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
+        // Добавляем уникальный каталог для профиля пользователя, чтобы избежать конфликта
+        options.addArguments("--user-data-dir=/tmp/chrome-user-data-dir-" + System.currentTimeMillis());
 
         Configuration.browserCapabilities = options;
         Configuration.baseUrl = "http://localhost:9999";
         Configuration.browserSize = "1920x1080";
+        // Если нужно запускать в headless-режиме, установите true, иначе оставьте false
         Configuration.headless = false;
     }
 
@@ -56,9 +58,8 @@ public class CardDeliveryTest {
 
         // Проверяем уведомление об успешном бронировании
         $(".notification__content")
-                .shouldBe(visible, Duration.ofSeconds(15))
-                .shouldHave(text("Встреча успешно запланирована на 15.08.2025"));
-
+                .shouldBe(Condition.visible, Duration.ofSeconds(15))
+                .shouldHave(Condition.text("Встреча успешно запланирована на 15.08.2025"));
 
         // Генерируем новую дату для перепланирования
         String newDate = DataGenerator.generateDate(5);
@@ -70,20 +71,20 @@ public class CardDeliveryTest {
 
         // Проверяем появление окна с предложением перепланировать
         $(".notification__content")
-                .shouldBe(visible, Duration.ofSeconds(15))
-                .shouldHave(text("Встреча успешно запланирована на " + newDate));
-
+                .shouldBe(Condition.visible, Duration.ofSeconds(15))
+                .shouldHave(Condition.text("Встреча успешно запланирована на " + newDate));
 
         // Клик по кнопке "Перепланировать"
         $(byText("Перепланировать"))
-                .shouldBe(visible, Duration.ofSeconds(5))
+                .shouldBe(Condition.visible, Duration.ofSeconds(5))
                 .click();
 
         // Проверяем уведомление о успешном перепланировании
         $(".notification__content")
-                .shouldBe(visible, Duration.ofSeconds(15))
-                .shouldHave(text("Встреча успешно запланирована на " + newDate));
+                .shouldBe(Condition.visible, Duration.ofSeconds(15))
+                .shouldHave(Condition.text("Встреча успешно запланирована на " + newDate));
     }
 }
+
 
 
