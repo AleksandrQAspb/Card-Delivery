@@ -1,13 +1,11 @@
 package ru.netology.data;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Value;
 
-@Data
-@AllArgsConstructor
+@Value
 public class UserData {
-    private String city;
-    private String date;
-    private String name;
-    private String phone;
+    String city;
+    String date;
+    String name;
+    String phone;
 }

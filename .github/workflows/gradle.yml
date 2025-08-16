@@ -16,12 +16,7 @@ jobs:
           distribution: 'adopt'
 
       - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-      - name: Install Google Chrome
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y google-chrome-stable
+        run: chmod +x gradlewe
 
       - name: Start SUT
         # Запускаем System Under Test (SUT) в фоновом режиме

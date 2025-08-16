@@ -1,90 +1,67 @@
 package ru.netology.tests;
 
 import com.codeborne.selenide.Condition;
-import com.codeborne.selenide.Configuration;
-import io.github.bonigarcia.wdm.WebDriverManager;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Keys;
-import org.openqa.selenium.chrome.ChromeOptions;
-import ru.netology.data.UserData;
 import ru.netology.utils.DataGenerator;
+
 
 import java.time.Duration;
 
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.*;
 import static com.codeborne.selenide.Selectors.byText;
 
-public class CardDeliveryTest {
+class DeliveryTest {
 
-    @BeforeAll
-    static void setUp() {
-        // Очищаем кэш драйверов для предотвращения конфликтов
-        WebDriverManager.chromedriver().clearDriverCache().clearResolutionCache();
-        WebDriverManager.chromedriver().setup();
-
-        Configuration.browser = "chrome";
-
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--remote-allow-origins=*");
-        options.addArguments("--no-sandbox");
-        options.addArguments("--disable-dev-shm-usage");
-        // Добавляем уникальный каталог для профиля пользователя, чтобы избежать конфликта
-        options.addArguments("--user-data-dir=/tmp/chrome-user-data-dir-" + System.currentTimeMillis());
-
-        Configuration.browserCapabilities = options;
-        Configuration.baseUrl = "http://localhost:9999";
-        Configuration.browserSize = "1920x1080";
-        // Включаем headless-режим для запуска тестов без GUI
-        Configuration.headless = true;
+    @BeforeEach
+    void setup() {
+        open ("http://localhost:9999");
     }
 
     @Test
-    void shouldRescheduleMeeting() {
-        open("/");
+    @DisplayName("Should successfully plan and replan meeting")
+    void shouldSuccessfulPlanAndReplanMeeting() {
+        var validUser  = DataGenerator.Registration.generateUser (Integer.parseInt("ru"));
+        var daysToAddForFirstMeeting = 4;
+        var firstMeetingDate = DataGenerator.generateDate(daysToAddForFirstMeeting);
+        var daysToAddForSecondMeeting = 7;
+        var secondMeetingDate = DataGenerator.generateDate(daysToAddForSecondMeeting);
 
-        // Генерируем данные для первичной заявки
-        UserData user = DataGenerator.generateUser (3);
-
-        $("[data-test-id=city] input").setValue(user.getCity());
-        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
-        $("[data-test-id=date] input").setValue(user.getDate());
-        $("[data-test-id=name] input").setValue(user.getName());
-        $("[data-test-id=phone] input").setValue(user.getPhone());
-        $("[data-test-id=agreement]").click();
-
-        // Клик по кнопке "Запланировать"
+        // Заполнение формы для первичного планирования встречи
+        $("[data-test-id='city'] input").setValue(validUser .getCity());
+        $("[data-test-id='date'] input")
+                .sendKeys(Keys.chord(Keys.CONTROL, "a"), Keys.BACK_SPACE);
+        $("[data-test-id='date'] input").setValue(firstMeetingDate);
+        $("[data-test-id='name'] input").setValue(validUser .getName());
+        $("[data-test-id='phone'] input").setValue(validUser .getPhone());
+        $("[data-test-id='agreement']").click();
         $(byText("Запланировать")).click();
 
-        // Проверяем уведомление об успешном бронировании
+        // Проверка успешного планирования встречи на первую дату
         $(".notification__content")
-                .shouldBe(Condition.visible, Duration.ofSeconds(15))
-                .shouldHave(Condition.text("Встреча успешно запланирована на 15.08.2025"));
+                .shouldBe(visible, Duration.ofSeconds(15))
+                .shouldHave(text("Встреча успешно запланирована на " + firstMeetingDate));
 
-        // Генерируем новую дату для перепланирования
-        String newDate = DataGenerator.generateDate(5);
-
-        // Перепланируем встречу: очищаем и меняем дату, отправляем форму заново
-        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
-        $("[data-test-id=date] input").setValue(newDate);
+        // Перепланирование: изменяем дату встречи
+        $("[data-test-id='date'] input")
+                .sendKeys(Keys.chord(Keys.CONTROL, "a"), Keys.BACK_SPACE);
+        $("[data-test-id='date'] input").setValue(secondMeetingDate);
         $(byText("Запланировать")).click();
 
-        // Проверяем появление окна с предложением перепланировать
-        $(".notification__content")
-                .shouldBe(Condition.visible, Duration.ofSeconds(15))
-                .shouldHave(Condition.text("Встреча успешно запланирована на " + newDate));
-
-        // Клик по кнопке "Перепланировать"
+        // Подтверждаем перепланирование и проверяем итоговое уведомление
         $(byText("Перепланировать"))
-                .shouldBe(Condition.visible, Duration.ofSeconds(5))
+                .shouldBe(visible, Duration.ofSeconds(5))
                 .click();
-
-        // Проверяем уведомление о успешном перепланировании
         $(".notification__content")
-                .shouldBe(Condition.visible, Duration.ofSeconds(15))
-                .shouldHave(Condition.text("Встреча успешно запланирована на " + newDate));
+                .shouldBe(visible, Duration.ofSeconds(15))
+                .shouldHave(text("Встреча успешно запланирована на " + secondMeetingDate));
     }
 }
+
 
 
 

@@ -9,6 +9,8 @@ import java.util.Locale;
 
 public class DataGenerator {
 
+    public static DataGenerator Registration;
+
     private DataGenerator() {
         // приватный конструктор, чтобы класс нельзя было инстанцировать
     }

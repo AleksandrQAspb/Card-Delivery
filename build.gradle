@@ -23,7 +23,6 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok:1.18.36'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
     testImplementation 'org.slf4j:slf4j-simple:2.0.3'
-    testImplementation 'io.github.bonigarcia:webdrivermanager:5.4.1'
 }
 
 test {
